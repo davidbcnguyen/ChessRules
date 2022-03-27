@@ -9,7 +9,7 @@ export default class Knight extends Piece {
         } else {
             symbol = "♞";
         }
-        super(board, symbol, color);
+        super(board, "knight", symbol, color);
     }
 
     get moves() {

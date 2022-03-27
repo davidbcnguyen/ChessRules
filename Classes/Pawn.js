@@ -9,7 +9,7 @@ export default class Pawn extends Piece {
         } else {
             symbol = "♟";
         }
-        super(board, symbol, color);
+        super(board, "pawn", symbol, color);
     }
 
     get moves() {

@@ -9,7 +9,7 @@ export default class Bishop extends Piece {
         } else {
             symbol = "♝";
         }
-        super(board, symbol, color);
+        super(board, "bishop", symbol, color);
     }
 
     get moves() {

@@ -8,32 +8,59 @@ import Pawn from "./Pawn.js";
 
 export default class Board {
     matrix = [[]];
+    whitePieces = [];
+    whiteKing;
+    blackPieces = [];
+    blackKing;
+    checkMate;
 
     constructor() {
         this.matrix = Board.emptyBoard();
-        this.addPiece(new Rook(this, "black"), [0, 0]);
-        this.addPiece(new Knight(this, "black"), [1, 0]);
-        this.addPiece(new Bishop(this, "black"), [2, 0]);
-        this.addPiece(new Queen(this, "black"), [3, 0]);
-        this.addPiece(new King(this, "black"), [4, 0]);
-        this.addPiece(new Bishop(this, "black"), [5, 0]);
-        this.addPiece(new Knight(this, "black"), [6, 0]);
-        this.addPiece(new Rook(this, "black"), [7, 0]);
+        this.blackPieces.push(new Rook(this, "black"));
+        this.blackPieces.push(new Knight(this, "black"));
+        this.blackPieces.push(new Bishop(this, "black"));
+        this.blackPieces.push(new Queen(this, "black"));
+        this.blackKing = new King(this, "black");
+        this.blackPieces.push(this.blackKing);
+        this.blackPieces.push(new Bishop(this, "black"));
+        this.blackPieces.push(new Knight(this, "black"));
+        this.blackPieces.push(new Rook(this, "black"));
         for (let i = 0; i < 8; i++) {
-            this.addPiece(new Pawn(this, "black"), [i, 1]);
+            this.blackPieces.push(new Pawn(this, "black"));
+        }
+        let [x, y] = [0, 0];
+        for (let piece of this.blackPieces) {
+            this.addPiece(piece, [x, y]);
+            x++;
+            if (x == 8) {
+                x = 0;
+                y++;
+            }
         }
 
-        this.addPiece(new Rook(this, "white"), [0, 7]);
-        this.addPiece(new Knight(this, "white"), [1, 7]);
-        this.addPiece(new Bishop(this, "white"), [2, 7]);
-        this.addPiece(new Queen(this, "white"), [3, 7]);
-        this.addPiece(new King(this, "white"), [4, 7]);
-        this.addPiece(new Bishop(this, "white"), [5, 7]);
-        this.addPiece(new Knight(this, "white"), [6, 7]);
-        this.addPiece(new Rook(this, "white"), [7, 7]);
+        this.whitePieces.push(new Rook(this, "white"));
+        this.whitePieces.push(new Knight(this, "white"));
+        this.whitePieces.push(new Bishop(this, "white"));
+        this.whitePieces.push(new Queen(this, "white"));
+        this.whiteKing = new King(this, "white");
+        this.whitePieces.push(this.whiteKing);
+        this.whitePieces.push(new Bishop(this, "white"));
+        this.whitePieces.push(new Knight(this, "white"));
+        this.whitePieces.push(new Rook(this, "white"));
         for (let i = 0; i < 8; i++) {
-            this.addPiece(new Pawn(this, "white"), [i, 6]);
+            this.whitePieces.push(new Pawn(this, "white"));
         }
+        [x, y] = [0, 7];
+        for (let piece of this.whitePieces) {
+            this.addPiece(piece, [x, y]);
+            x++;
+            if (x == 8) {
+                x = 0;
+                y--;
+            }
+        }
+
+        this.checkMate = false;
     }
 
     static emptyBoard() {
@@ -51,7 +78,7 @@ export default class Board {
         return this.matrix[y][x];
     }
 
-    move(from, to) {
+    move(side, from, to) {
         // Check if within board
         if (!isValidPos(from) || !isValidPos(to)) {
             return false;
@@ -63,13 +90,15 @@ export default class Board {
         if (!fromPiece) {
             return false;
         }
+        if (fromPiece.color !== side) {
+            return false;
+        }
         // Check if valid move that piece can make
         if (toPiece) {
             if (!fromPiece.attacks.includes(to)) {
                 return false;
             }
-            toPiece.posX = -1;
-            toPiece.posY = -1;
+            toPiece.position = [-1, -1];
             toPiece.active = false;
         } else {
             if (!fromPiece.moves.includes(to)) {
@@ -78,6 +107,50 @@ export default class Board {
         }
         this.matrix[toY][toX] = fromPiece;
         fromPiece.position = to;
+
+        if (this.isInCheck(side)) {
+            if (toPiece) {
+                toPiece.position = to;
+                toPiece.active = true;
+                this.matrix[toY][toX] = toPiece;
+            }
+            this.matrix[fromX][fromY] = fromPiece;
+            fromPiece.position = from;
+        }
+
+        this.handlePossiblePromotion(fromPiece, toX, toY);
+        
         return true;
+    }
+
+    isInCheck(side) {
+        if (side == "white") {
+            let attacked = new Set();
+            for (let piece of this.blackPieces) {
+                attacked.add(piece.attacks);
+            }
+            if (attacked.has(this.whiteKing.pos)) {
+                return true;
+            }
+        } else {
+            let attacked = new Set();
+            for (let piece of this.whitePieces) {
+                attacked.add(piece.attacks);
+            }
+            if (attacked.has(this.blackKing.pos)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    handlePossiblePromotion(fromPiece, toX, toY) {
+        if (fromPiece.id === "pawn") {
+            if (fromPiece.color === "white" && fromPiece.posY === 0) {
+                this.matrix[toY][toX] = new Queen(this, "white");
+            } else if (fromPiece.color === "black" && fromPiece.posY === 7) {
+                this.matrix[toY][toX] = new Queen(this, "black");
+            }
+        }
     }
 }

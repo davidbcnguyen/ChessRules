@@ -8,7 +8,7 @@ export default class Rook extends Piece {
         } else {
             symbol = "♜";
         }
-        super(board, symbol, color);
+        super(board, "rook", symbol, color);
     }
 
     get moves() {

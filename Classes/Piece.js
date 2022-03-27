@@ -5,14 +5,16 @@ export default class Piece {
     symbol;
     color;
     active;
+    id;
 
-    constructor(board, symbol, color) {
+    constructor(board, id, symbol, color) {
         this.board = board;
         this.symbol = symbol;
         this.color = color;
         this.active = true;
         this.posX = -1;
         this.posY = -1;
+        this.id = id;
     }
 
     get moves() {
@@ -21,6 +23,10 @@ export default class Piece {
 
     get attacks() {
         return [];
+    }
+
+    get pos() {
+        return [this.posX, this.posY];
     }
 
     set position(pos) {

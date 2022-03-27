@@ -10,6 +10,16 @@ export default class Game {
     }
 
     play() {
+        let turn = "white";
+        while (!this.isOver) {
+            let from, to;
+            while (this.board.move(turn, from, to));
+            if (turn === "white") {
+                turn = "black";
+            } else {
+                turn = "white";
+            }
+        }
     }
 
     print() {

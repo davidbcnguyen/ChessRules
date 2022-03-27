@@ -9,7 +9,7 @@ export default class King extends Piece {
         } else {
             symbol = "♚";
         }
-        super(board, symbol, color);
+        super(board, "king", symbol, color);
     }
 
     get moves() {

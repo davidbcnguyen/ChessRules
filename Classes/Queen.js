@@ -9,7 +9,7 @@ export default class Rook extends Piece {
         } else {
             symbol = "♛";
         }
-        super(board, symbol, color);
+        super(board, "queen", symbol, color);
     }
 
     get moves() {
